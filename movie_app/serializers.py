@@ -45,3 +45,19 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
     def get_rating(self, movie):
         return movie.rating
+
+
+class MovieValidatorsCreate(serializers.Serializer):
+    name = serializers.CharField(min_length=1, max_length=100)
+    description = serializers.CharField(min_length=1)
+    duration = serializers.IntegerField(min_value=1)
+    director_id = serializers.IntegerField(min_value=1)
+
+
+class ReviewValidatorCreate(serializers.Serializer):
+    text = serializers.CharField(min_length=2)
+    movie_id = serializers.IntegerField(min_value=1)
+
+
+class DirectorValidatorCreate(serializers.Serializer):
+    name = serializers.CharField(max_length=150)

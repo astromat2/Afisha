@@ -2,7 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Director, Movie, Review
-from .serializers import DirectorSerializer, MovieSerializer, ReviewSerializer, MovieDetailSerializer
+from .serializers import DirectorSerializer, MovieSerializer, ReviewSerializer, MovieDetailSerializer,\
+    MovieValidatorsCreate, DirectorValidatorCreate, ReviewValidatorCreate
 
 
 @api_view(['GET', 'POST'])
@@ -12,6 +13,9 @@ def director_list_api_view(request):
         serializer = DirectorSerializer(directors, many=True)
         return Response(data=serializer.data)
     elif request.method == 'POST':
+        serializer = DirectorValidatorCreate(data=request.data)
+        if not serializer.is_valid():
+            return Response(data={'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         name = request.data.get('name')
         director = Director.objects.create(name=name)
         director.save()
@@ -34,7 +38,10 @@ def director_detail_api_view(request, id):
         director.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     elif request.method == 'PUT':
-        director.name = request.data.get('name')
+        serializer = DirectorValidatorCreate(data=request.data)
+        if not serializer.is_valid():
+            return Response(data={'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        director.name = serializer.validated_data.get('name')
         director.save()
         return Response(data={'message': 'Data received!',
                               'director': DirectorSerializer(director).data})
@@ -50,11 +57,14 @@ def movie_list_api_view(request):
         return Response(data=serializer.data)
     elif request.method == 'POST':
         """ CREATE """
+        serializer = MovieValidatorsCreate(data=request.data)
+        if not serializer.is_valid():
+            return Response(data={'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         name = request.data.get('name')
-        text = request.data.get('description')
+        description = request.data.get('description')
         duration = request.data.get('duration')
         director = request.data.get('director')
-        movie = Movie.objects.create(name=name, description=text, duration=duration,
+        movie = Movie.objects.create(name=name, description=description, duration=duration,
                                      director=director)
         movie.save()
         return Response(data={'message': 'Data received!',
@@ -95,6 +105,9 @@ def review_list_api_view(request):
         serializer = ReviewSerializer(reviews, many=True)
         return Response(data=serializer.data)
     elif request.method == 'POST':
+        serializer = ReviewValidatorCreate(data=request.data)
+        if not serializer.is_valid():
+            return Response(data={'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         text = request.data.get('text')
         movie = request.data.get('movie')
         stars = request.data.get('stars')
@@ -119,9 +132,11 @@ def review_detail_api_view(request, id):
         review.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     elif request.method == 'PUT':
-        review.text = request.data.get('text')
-        review.movie = request.data.get('movie')
-        review.stars = request.data.get('stars')
+        serializer = ReviewValidatorCreate(data=request.data)
+        serializer.is_valid(raise_exception=1)
+        review.text = serializer.validated_data.get('text')
+        review.movie = serializer.validated_data.get('movie')
+        review.stars = serializer.validated_data.get('stars')
         review.save()
         return Response(data={'message': 'Data received!',
                               'review': ReviewSerializere(review).data})
