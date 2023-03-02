@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from movie_app.models import Director, Movie, Review
+from .models import Director, Movie, Review
 
 
 def get_movie_count(director):
@@ -32,7 +32,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'movie')
 
 
-class MovieDetailSerializer(serializers.ModelSerializer):
+class MovieReviewSerializer(serializers.ModelSerializer):
     reviews = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
 
@@ -52,6 +52,10 @@ class MovieValidatorsCreate(serializers.Serializer):
     description = serializers.CharField(min_length=1)
     duration = serializers.IntegerField(min_value=1)
     director_id = serializers.IntegerField(min_value=1)
+
+
+class MovieDetailValidatorCreate(MovieValidatorsCreate):
+    pass
 
 
 class ReviewValidatorCreate(serializers.Serializer):
