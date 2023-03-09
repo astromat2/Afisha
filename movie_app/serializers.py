@@ -48,7 +48,7 @@ class MovieReviewSerializer(serializers.ModelSerializer):
 
 
 class MovieValidatorsCreate(serializers.Serializer):
-    name = serializers.CharField(min_length=1, max_length=100)
+    name = serializers.CharField(min_length=1, max_length=255)
     description = serializers.CharField(min_length=1)
     duration = serializers.IntegerField(min_value=1)
     director_id = serializers.IntegerField(min_value=1)
@@ -59,9 +59,9 @@ class MovieDetailValidatorCreate(MovieValidatorsCreate):
 
 
 class ReviewValidatorCreate(serializers.Serializer):
-    text = serializers.CharField(min_length=2)
+    text = serializers.CharField(min_length=1)
     movie_id = serializers.IntegerField(min_value=1)
 
 
 class DirectorValidatorCreate(serializers.Serializer):
-    name = serializers.CharField(max_length=150)
+    name = serializers.CharField(max_length=100)
